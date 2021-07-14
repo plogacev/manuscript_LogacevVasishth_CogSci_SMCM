@@ -394,7 +394,7 @@ xtabs(~qtype+depth,crit)
 xtabs(~qtype+shallow,crit)
 
 library(lme4)
-m1<-lmer(RT ~ (ambig+att)*(depth + shallow) + ( (ambig+att)*(depth + shallow) + 1||subj)+
+m1<-lmer(RT ~ (ambig+att)*(depth + shallow) + (1|subj)+
           (1|item),crit)
 summary(m1)
 
@@ -457,10 +457,19 @@ hist(crit$RT)
 contrasts(crit$attachment) <- contr.sum(3)
 contrasts(crit$qtype) <- contr.sum(3)
 
-maov1 <- aov(RT ~ attachment*qtype + Error(subj/(attachment*qtype) ), crit)
+crit$subj %<>% as.character() %>% as.factor()
+crit$item %<>% as.character() %>% as.factor()
+
+#unique(crit$subj)
+
+# Degrees of freedom match, but F values don't. They are in the ballpark, but still quite different
+maov1 <- aov(RT ~ attachment*qtype + Error(subj/(attachment) ), crit)
 summary(maov1)
 
-maov2 <- aov(log(RT) ~ attachment*qtype + Error(subj/(attachment*qtype) ), crit)
+# I think that this should be the random effects structure, but the DFs are off, which
+# makes me think that they used another random effects structure.
+# Needless to say, the F values don't match at all. 
+maov2 <- aov(RT ~ attachment*qtype + Error(item/(attachment*qtype) ), crit)
 summary(maov2)
 
 @
