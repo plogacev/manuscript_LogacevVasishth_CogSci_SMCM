@@ -402,6 +402,25 @@ summary(m2)
 
 For the Swets et al claim to hold up, there would have to be an interaction between ambig (whether the RC attachment is ambiguous or not) and depth (whether the question type was deep or not). There is no such interaction.
 
+Their reported effect was:
+
+"a significant interaction between question type and sentence type [$F1(4,282) = 3.36, p<0.05, F2(4,210)=3.93, p<0.01]$."
+
+Although the authors didn't compute the minF', this critical interaction was not significant even in the paper (need to check whether my minF' calculation is right; in particular, does one put 4 numerator degrees of freedom here?):
+
+<<>>=
+minf <- function(f1,f2,n1,n2){
+fprime <- (f1*f2)/(f1+f2)
+n <- round(((f1+f2)*(f1+f2))/(((f1*f1)/n2)+((f2*f2)/n1)))
+pval<-pf(fprime,4,n,lower.tail=FALSE)
+return(paste("minF(4,",n,")=",round(fprime,digits=2),"p-value=",round(pval,2),"crit=",round(qf(.95,1,n))))
+}
+minf(3.36,3.93,282,210)
+@
+
+The next thing to look at is whether there an effect of ambiguity nested within the question types: in RC questions vs the non-RC questions, is there an effect of ambiguity? For this we needed a nested coding: Within RC questions, the effect of ambiguity and attachment, and within the other question types, the effect of ambiguity and attachment.
+
+
 \begin{table}
 \begin{center}
 \caption{Reading times on the post-disambiguating region, in ms \protect\cite<from the raw data of>[]{SwetsDesmetCliftonFerreira2008}. Within-subject standard errors in brackets \protect\cite{Cousineau2005,Morey:2008}.}
