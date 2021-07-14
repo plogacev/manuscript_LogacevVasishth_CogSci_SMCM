@@ -369,6 +369,36 @@ data.cis <- with(data, tapply(paste0(round(lower), "-",round(upper)), list(qtype
 
 @
 
+Data analysis of region 9 (post-critical region); added by SV on 14 July 2021:
+<<>>=
+crit<-subset(d,rid=="region9")
+crit<-crit[,c(1,2,6,8,9,17)]
+head(crit)
+## helmert coding:
+crit$ambig<-ifelse(crit$attachment=="ambiguous",2,-1)
+crit$att<-ifelse(crit$attachment=="N2 attachment",-1,
+                 ifelse(crit$attachment=="N1 attachment",1,
+                        0))
+crit$depth<-ifelse(crit$qtype=="RC questions",2,-1)
+crit$shallow<-ifelse(crit$qtype=="occasional",-1,
+                     ifelse(crit$qtype=="superficial",1,0))
+
+head(crit)
+xtabs(~attachment+ambig,crit)
+xtabs(~attachment+att,crit)
+xtabs(~qtype+depth,crit)
+xtabs(~qtype+shallow,crit)
+
+library(lme4)
+m1<-lmer(RT~(ambig+att)*(depth + shallow) + (1|subj)+
+          (1|item),crit)
+summary(m1)
+
+m2<-lmer(log(RT)~(ambig+att)*(depth + shallow) + (1|subj)+
+          (1|item),crit)
+summary(m2)
+@
+
 \begin{table}
 \begin{center}
 \caption{Reading times on the post-disambiguating region, in ms \protect\cite<from the raw data of>[]{SwetsDesmetCliftonFerreira2008}. Within-subject standard errors in brackets \protect\cite{Cousineau2005,Morey:2008}.}
