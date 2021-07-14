@@ -370,6 +370,7 @@ data.cis <- with(data, tapply(paste0(round(lower), "-",round(upper)), list(qtype
 @
 
 Data analysis of region 9 (post-critical region); added by SV on 14 July 2021:
+
 <<>>=
 crit<-subset(d,rid=="region9")
 crit<-crit[,c(1,2,6,8,9,17)]
@@ -398,6 +399,8 @@ m2<-lmer(log(RT)~(ambig+att)*(depth + shallow) + (1|subj)+
           (1|item),crit)
 summary(m2)
 @
+
+For the Swets et al claim to hold up, there would have to be an interaction between ambig (whether the RC attachment is ambiguous or not) and depth (whether the question type was deep or not). There is no such interaction.
 
 \begin{table}
 \begin{center}
