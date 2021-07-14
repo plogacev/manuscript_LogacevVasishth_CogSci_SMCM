@@ -369,6 +369,9 @@ data.cis <- with(data, tapply(paste0(round(lower), "-",round(upper)), list(qtype
 
 @
 
+--------
+\hline
+
 Data analysis of region 9 (post-critical region); added by SV on 14 July 2021:
 
 <<>>=
@@ -391,7 +394,7 @@ xtabs(~qtype+depth,crit)
 xtabs(~qtype+shallow,crit)
 
 library(lme4)
-m1<-lmer(RT~(ambig+att)*(depth + shallow) + (1|subj)+
+m1<-lmer(RT ~ (ambig+att)*(depth + shallow) + ( (ambig+att)*(depth + shallow) + 1||subj)+
           (1|item),crit)
 summary(m1)
 
@@ -419,6 +422,52 @@ minf(3.36,3.93,282,210)
 @
 
 The next thing to look at is whether there an effect of ambiguity nested within the question types: in RC questions vs the non-RC questions, is there an effect of ambiguity? For this we needed a nested coding: Within RC questions, the effect of ambiguity and attachment, and within the other question types, the effect of ambiguity and attachment.
+
+
+\hline
+--------
+
+<<>>=
+
+library(tidyverse)
+library(magrittr)
+
+crit$attachment <- as.factor(crit$attachment) 
+crit$qtype <- as.factor(crit$qtype) 
+
+# check if we even have the right data
+crit %>% group_by(attachment, qtype) %>%
+  dplyr::summarise(M = mean(RT), SE = se(RT)) %>%
+  ggplot(aes(attachment, M, color = attachment)) + facet_wrap(~qtype) + 
+  geom_point() + geom_errorbar(aes(ymin=M-2*SE, ymax=M+2*SE)) +
+  theme(axis.text.x = element_text(angle = 35, vjust = 0.5, hjust=1))
+
+# ... looks right
+
+# check for outliers
+hist(crit$RT)
+
+# NOTE: Swets et al don't seem to have performed outlier removal: If I run the commented-out code below the average of the 
+#       N1 attachment/RC questions condition drops to 1400, which is significantly smaller than in the paper.
+# # drop all RTs > 5 sec (15 observations)
+# nrow(subset(crit, RT > 5000))
+# crit %<>% subset(RT <= 5000)
+
+# let's do an ANOVA 
+contrasts(crit$attachment) <- contr.sum(3)
+contrasts(crit$qtype) <- contr.sum(3)
+
+maov1 <- aov(RT ~ attachment*qtype + Error(subj/(attachment*qtype) ), crit)
+summary(maov1)
+
+maov2 <- aov(log(RT) ~ attachment*qtype + Error(subj/(attachment*qtype) ), crit)
+summary(maov2)
+
+@
+
+
+\hline
+--------
 
 
 \begin{table}
