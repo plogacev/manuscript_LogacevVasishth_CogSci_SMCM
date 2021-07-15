@@ -393,10 +393,16 @@ xtabs(~qtype+shallow,crit)
 library(lme4)
 m1<-lmer(RT~(ambig+att)*(depth + shallow) + (1|subj)+
           (1|item),crit)
+
+m1<-lmer(RT~(ambig+depth + ambig:depth +att:depth + shallow+ ambig:shallow + att:shallow + (1|subj)+
+          (1|item),crit)
+
 summary(m1)
 
 m2<-lmer(log(RT)~(ambig+att)*(depth + shallow) + (1|subj)+
           (1|item),crit)
+
+
 summary(m2)
 @
 
@@ -420,6 +426,56 @@ minf(3.36,3.93,282,210)
 
 The next thing to look at is whether there an effect of ambiguity nested within the question types: in RC questions vs the non-RC questions, is there an effect of ambiguity? For this we needed a nested coding: Within RC questions, the effect of ambiguity and attachment, and within the other question types, the effect of ambiguity and attachment.
 
+\begin{verbatim}
+        Question type:    RC      RC      RC    Super  Super   Super  Occ     Occ     Occ 
+        Sentence type:    A       N1      N2    A       N1      N2    A       N1      N2 
+RCambig                   2       -1      -1    0       0       0     0       0       0
+RCatt                     0       1       -1    0       0       0     0       0       0
+Sambig                    0       0        0    2       1       -1    0        0      0
+Satt                      0       0        0    0        1     -1     0        0      0
+Oambig                    0       0        0    0       0       0     2       -1      1 
+Oatt                      0       0        0    0       0       0     0        1     -1 
+Qtype1                    2       2        2    -1      -1      -1    -1       -1     -1
+Qtype2                    0       0        0    1        1      1     -1       -1     -1
+
+\end{verbatim}
+
+Nested contrast coding to investigate the effect of ambiguity and of RC attachment type within question type:
+
+<<>>=
+crit$RCambig<-ifelse(crit$qtype=="RC questions" & crit$attachment=="ambiguous", 2,
+             ifelse(crit$qtype=="RC questions" & 
+                      crit$attachment!="ambiguous", -1,0))
+crit$RCatt<-ifelse(crit$qtype=="RC questions" & crit$attachment=="N1 attachment", 1,ifelse(crit$qtype=="RC questions" & 
+                      crit$attachment=="N1 attachment", -1,0))
+crit$Sambig<-ifelse(crit$qtype=="superficial" & crit$attachment=="ambiguous", 2,
+             ifelse(crit$qtype=="superficial" & 
+                      crit$attachment!="ambiguous", -1,0))
+crit$Satt<-ifelse(crit$qtype=="superficial" & crit$attachment=="N1 attachment", 1,ifelse(crit$qtype=="superficial" & 
+                      crit$attachment=="N1 attachment", -1,0))
+crit$Oambig<-ifelse(crit$qtype=="occasional" & crit$attachment=="ambiguous", 2,
+             ifelse(crit$qtype=="occasional" & 
+                      crit$attachment!="ambiguous", -1,0))
+crit$Oatt<-ifelse(crit$qtype=="occasional" & crit$attachment=="N1 attachment", 1,ifelse(crit$qtype=="occasional" & 
+                      crit$attachment=="N1 attachment", -1,0))
+crit$RC<-ifelse(crit$qtype=="RC questions",2,-1)
+crit$NonRC<-ifelse(crit$qtype=="superficial",1,
+                ifelse(crit$qtype=="occasional",-1,0))
+@
+
+<<>>=
+m_nested<-lmer(RT~RCambig+RCatt+ Sambig+Satt+Oambig+Oatt+
+                 RC+NonRC+(1+RCambig+RCatt||subj)+(1+RCambig+RCatt||item),crit)
+summary(m_nested)
+@
+
+The analysis above investigates the following conclusions in the paper:
+
+\begin{itemize}
+\item "When participants are regularly asked about their interpretation of the relative clause, they are more likely to spend a longer time recovering from N1 disambiguation in the previous region than from either an ambiguous or N2-resolved previous region." This is confirmed from the nested analysis above.
+\item "On the other hand, in the superficial question conditions, participants read ambiguous sentences faster than disambiguated sentences, and no reading time differences were observed for N1 versus N2 disambiguation." The effect of ambiguity in superficial questions is not validated in the nested analysis, but the null result (no evidence that N2 sentences were processed faster than N1 sentences) is reproduced. 
+
+\end{itemize}
 
 \begin{table}
 \begin{center}
