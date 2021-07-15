@@ -525,6 +525,31 @@ res_anova_item<-anova_test(data = byitemcrit,
 get_anova_table(res_anova_item)
 @
 
+Next, we look at the superficial data (subsetted). This is an incorrect analysis because it hides the by items (in by-subject anova) or by subjects (in by-items anova) variability.
+
+<<>>=
+bysubjsup<-aggregate(RT~subj+attachment,mean,
+                     data=superficial)
+res_anovasup<-anova_test(data = bysubjsup, 
+           dv = RT, 
+           wid = subj,
+           within = attachment
+  )
+get_anova_table(res_anovasup)
+
+byitemsup<-aggregate(RT~item+attachment,
+                     mean,
+                     data=superficial)
+
+res_anova_itemsup<-anova_test(data = byitemsup, 
+           dv = RT, 
+           wid = item,
+           #between = qtype, 
+           within = attachment
+  )
+get_anova_table(res_anova_itemsup)
+
+@
 \hline
 --------
 
