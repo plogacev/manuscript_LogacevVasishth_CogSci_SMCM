@@ -480,6 +480,25 @@ The analysis above investigates the following conclusions in the paper:
 
 \end{itemize}
 
+On the log ms scale, we can find the expected effect of ambiguity in superficial questions:
+
+<<>>=
+m_nestedlog<-lmer(log(RT)~RCambig+RCatt+ Sambig+Satt+Oambig+Oatt+
+                 RC+NonRC+(1+RCambig||subj)+(1+RCambig||item),crit)
+summary(m_nestedlog)
+@
+
+The way Swets et al analyzed the data was by subsetting. So, if we subset the data to superficial question types only and then look at the effect of ambig and att, we get a marginal effect of ambiguity, as claimed in the paper. Actually, the effect is strong, if we analyze the data on log ms scale:
+
+<<>>=
+superficial<-subset(crit,qtype="superficial")
+m3<-lmer(RT~Sambig+Satt+(1|subj)+(1|item),crit)
+summary(m3)
+m3log<-lmer(log(RT)~Sambig+Satt+(1|subj)+(1|item),crit)
+summary(m3log)
+@
+
+
 \hline
 --------
 
