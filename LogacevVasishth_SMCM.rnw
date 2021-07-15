@@ -525,7 +525,7 @@ res_anova_item<-anova_test(data = byitemcrit,
 get_anova_table(res_anova_item)
 @
 
-Next, we look at the superficial data (subsetted). This is an incorrect analysis because it hides the by items (in by-subject anova) or by subjects (in by-items anova) variability.
+Next, we look at the superficial data (subsetted). This is an incorrect analysis because it hides the by items (in by-subject anova) or by subjects (in by-items anova) variability. We can reproduce the claim in the paper, although, as mentioned above, this analysis is incorrect:
 
 <<>>=
 bysubjsup<-aggregate(RT~subj+attachment,mean,
@@ -550,6 +550,35 @@ res_anova_itemsup<-anova_test(data = byitemsup,
 get_anova_table(res_anova_itemsup)
 
 @
+
+What happens with log RTs? Nothing much changes:
+
+<<>>=
+superficial$logrt<-log(superficial$RT)
+bysubjsup<-aggregate(logrt~subj+attachment,mean,
+                     data=superficial)
+res_anovasuplog<-anova_test(data = bysubjsup, 
+           dv = logrt, 
+           wid = subj,
+           within = attachment
+  )
+get_anova_table(res_anovasuplog)
+
+byitemsuplog<-aggregate(logrt~item+attachment,
+                     mean,
+                     data=superficial)
+
+res_anova_itemsuplog<-anova_test(data = byitemsuplog, 
+           dv = logrt, 
+           wid = item,
+           #between = qtype, 
+           within = attachment
+  )
+get_anova_table(res_anova_itemsuplog)
+
+@
+
+
 \hline
 --------
 
