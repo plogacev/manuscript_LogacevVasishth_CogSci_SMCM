@@ -480,6 +480,7 @@ The analysis above investigates the following conclusions in the paper:
 
 \end{itemize}
 
+
 On the log ms scale, we can find the expected effect of ambiguity in superficial questions:
 
 <<>>=
@@ -498,6 +499,31 @@ m3log<-lmer(log(RT)~Sambig+Satt+(1|subj)+(1|item),crit)
 summary(m3log)
 @
 
+Swets et al actually did an ANOVA to get at the crucial higher order interaction. So let's try that:
+
+<<>>=
+bysubjcrit<-aggregate(RT~subj+attachment + 
+                        qtype,mean,data=crit)
+library(rstatix)
+res_anova<-anova_test(data = bysubjcrit, 
+           dv = RT, 
+           wid = subj,
+           between = qtype, 
+           within = attachment
+  )
+get_anova_table(res_anova)
+
+byitemcrit<-aggregate(RT~item+attachment + 
+                        qtype,mean,data=crit)
+
+res_anova_item<-anova_test(data = byitemcrit, 
+           dv = RT, 
+           wid = item,
+           #between = qtype, 
+           within = c(qtype,attachment)
+  )
+get_anova_table(res_anova_item)
+@
 
 \hline
 --------
