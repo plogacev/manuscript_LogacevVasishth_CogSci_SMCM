@@ -369,6 +369,9 @@ data.cis <- with(data, tapply(paste0(round(lower), "-",round(upper)), list(qtype
 
 @
 
+--------
+\hline
+
 Data analysis of region 9 (post-critical region); added by SV on 14 July 2021:
 
 <<>>=
@@ -391,7 +394,7 @@ xtabs(~qtype+depth,crit)
 xtabs(~qtype+shallow,crit)
 
 library(lme4)
-m1<-lmer(RT~(ambig+att)*(depth + shallow) + (1|subj)+
+m1<-lmer(RT ~ (ambig+att)*(depth + shallow) + (1|subj)+
           (1|item),crit)
 
 m1<-lmer(RT~(ambig+depth + ambig:depth +att:depth + shallow+ ambig:shallow + att:shallow + (1|subj)+
@@ -476,6 +479,61 @@ The analysis above investigates the following conclusions in the paper:
 \item "On the other hand, in the superficial question conditions, participants read ambiguous sentences faster than disambiguated sentences, and no reading time differences were observed for N1 versus N2 disambiguation." The effect of ambiguity in superficial questions is not validated in the nested analysis, but the null result (no evidence that N2 sentences were processed faster than N1 sentences) is reproduced. 
 
 \end{itemize}
+
+\hline
+--------
+
+<<>>=
+
+library(tidyverse)
+library(magrittr)
+
+crit$attachment <- as.factor(crit$attachment) 
+crit$qtype <- as.factor(crit$qtype) 
+
+# check if we even have the right data
+crit %>% group_by(attachment, qtype) %>%
+  dplyr::summarise(M = mean(RT), SE = se(RT)) %>%
+  ggplot(aes(attachment, M, color = attachment)) + facet_wrap(~qtype) + 
+  geom_point() + geom_errorbar(aes(ymin=M-2*SE, ymax=M+2*SE)) +
+  theme(axis.text.x = element_text(angle = 35, vjust = 0.5, hjust=1))
+
+# ... looks right
+
+# check for outliers
+hist(crit$RT)
+
+# NOTE: Swets et al don't seem to have performed outlier removal: If I run the commented-out code below the average of the 
+#       N1 attachment/RC questions condition drops to 1400, which is significantly smaller than in the paper.
+# # drop all RTs > 5 sec (15 observations)
+# nrow(subset(crit, RT > 5000))
+# crit %<>% subset(RT <= 5000)
+
+# let's do an ANOVA 
+contrasts(crit$attachment) <- contr.sum(3)
+contrasts(crit$qtype) <- contr.sum(3)
+
+crit$subj %<>% as.character() %>% as.factor()
+crit$item %<>% as.character() %>% as.factor()
+
+#unique(crit$subj)
+
+# Degrees of freedom match, but F values don't. They are in the ballpark, but still quite different
+maov1 <- aov(RT ~ attachment*qtype + Error(subj/(attachment) ), crit)
+summary(maov1)
+
+# I think that this should be the random effects structure, but the DFs are off, which
+# makes me think that they used another random effects structure.
+# Needless to say, the F values don't match at all. 
+maov2 <- aov(RT ~ attachment*qtype + Error(item/(attachment*qtype) ), crit)
+summary(maov2)
+
+@
+
+
+\hline
+--------
+
 
 \begin{table}
 \begin{center}
