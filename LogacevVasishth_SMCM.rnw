@@ -468,8 +468,16 @@ crit$NonRC<-ifelse(crit$qtype=="superficial",1,
 
 <<>>=
 m_nested<-lmer(RT~RCambig+RCatt+ Sambig+Satt+Oambig+Oatt+
-                 RC+NonRC+(1+RCambig+RCatt||subj)+(1+RCambig+RCatt||item),crit)
+                 RC+NonRC+(1+RCambig+RCatt||subj)+
+                 (1+RCambig+RCatt||item),crit)
 summary(m_nested)
+
+## ANOVA test on the overall effect of ambiguity in Superficial:
+m_nestedNULL<-lmer(RT~RCambig+RCatt+Oambig+Oatt+
+                 RC+NonRC+(1+RCambig+RCatt||subj)+
+                   (1+RCambig+RCatt||item),crit)
+anova(m_nested,m_nestedNULL)
+
 @
 
 The analysis above investigates the following conclusions in the paper:
